@@ -1,0 +1,38 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+df=pd.read_csv("heart.csv")
+df.shape 
+df.head(5)
+df.tail(5)
+df.isnull().sum()
+count = (df['Fbs']==0).sum()
+print(count)
+count = (df==0).sum()
+print(count)
+df.dtypes
+df.describe()
+df['Age'].mean()
+df['Chol'].min()
+subset = df[['Age', 'Sex', 'ChestPain', 'RestBP', 'Chol']]
+train_data , test_data = train_test_split(subset,test_size=0.25,random_state=42)
+print(train_data.shape)
+print(test_data.shape)
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+conf_matrix = [[TP, FP], [FN, TN]]
+print("Confusion Matrix:")
+print(conf_matrix)
+accuracy = (TP + TN) / (TP + TN + FP + FN)
+print("\nAccuracy:", accuracy)
+
+precision = TP / (TP + FP)
+print("Precision:", precision)
+
+# Recall
+recall = TP / (TP + FN)
+print("Recall:", recall)
+
+# F1 Score
+f1 = 2 * (precision * recall) / (precision + recall)
+print("F1 Score:", f1)
