@@ -1,0 +1,68 @@
+# Importing necessary libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder
+from sklearn.cluster import KMeans
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import adjusted_rand_score
+import scipy.cluster.hierarchy as shc
+
+# Reading data from CSV
+df = pd.read_csv('Mall_Customers.csv')
+
+# Data Preprocessing
+df.drop("CustomerID", axis=1, inplace=True)
+le = LabelEncoder()
+df["Genre"] = le.fit_transform(df["Genre"])
+
+# Selecting features
+X = df[['Age', 'Annual Income (k$)', 'Spending Score (1-100)']]
+
+# KMeans Clustering
+wcss = []
+for i in range(1, 11):
+    kmeans = KMeans(n_clusters=i, init='k-means++', random_state=42)
+    kmeans.fit(X)
+    wcss.append(kmeans.inertia_)
+    
+# Plotting the Elbow Method to find the optimal number of clusters
+plt.plot(range(1, 11), wcss, marker='o')
+plt.title('The Elbow Method')
+plt.xlabel('Number of Clusters')
+plt.ylabel('WCSS')
+plt.show()
+
+# Applying KMeans with the chosen number of clusters
+kmeans = KMeans(n_clusters=5, init='k-means++', random_state=42)
+y_kmeans = kmeans.fit_predict(X)
+df['KMeans_label'] = y_kmeans
+
+# Visualizing KMeans Clusters with Centroids
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x='Annual Income (k$)', y='Spending Score (1-100)', hue='KMeans_label', data=df, palette='viridis')
+plt.scatter(kmeans.cluster_centers_[:, 1], kmeans.cluster_centers_[:, 2], s=300, c='red', label='Centroids', marker='X')
+plt.title('KMeans Clustering with Centroids')
+plt.xlabel('Annual Income (k$)')
+plt.ylabel('Spending Score (1-100)')
+plt.legend()
+plt.show()
+
+# Agglomerative Clustering
+dendrogram = shc.dendrogram(shc.linkage(X, method='ward'))
+plt.title("Dendrogram Plot")
+plt.xlabel("Customer")
+plt.ylabel("Euclidean Distance")
+plt.show()
+
+# Applying Agglomerative Clustering
+agc = AgglomerativeClustering(n_clusters=5)
+y_agc = agc.fit_predict(X)
+df['Agglomerative_label'] = y_agc
+
+# Visualizing Agglomerative Clusters
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x='Annual Income (k$)', y='Spending Score (1-100)', hue='Agglomerative_label', data=df, palette='Set2')
+plt.title('Agglomerative Clustering')
+plt.show()
