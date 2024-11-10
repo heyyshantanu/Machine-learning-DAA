@@ -1,0 +1,30 @@
+import pandas as pd
+from apyori import apriori as apyori_apriori
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, association_rules
+
+df = pd.read_csv('/content/Market_Basket_Optimisation.csv', header=None)
+df.fillna(0, inplace=True)
+
+transactions = []
+for i in range(0, 7501):
+    transactions.append([str(df.values[i, j]) for j in range(0, 20)])
+
+rule_list = apyori_apriori(transactions, min_support=0.003, min_lift=3, min_length=2)
+Results = list(rule_list)
+
+results = pd.DataFrame(Results)
+print(len(Results))
+
+te = TransactionEncoder()
+te_ary = te.fit(transactions).transform(transactions)
+df = pd.DataFrame(te_ary, columns=te.columns_)
+
+frequent_itemsets = apriori(df, min_support=0.003, use_colnames=True)
+rules = association_rules(frequent_itemsets, metric="lift", min_threshold=3, num_itemsets=10)
+
+antecedents = rules['antecedents'].apply(lambda x: list(x))
+consequents = rules['consequents'].apply(lambda x: list(x))
+df_rules = pd.DataFrame({'antecedents': antecedents, 'consequents': consequents, 'support': rules['support'], 'confidence': rules['confidence'], 'lift': rules['lift']})
+
+df_rules.head()
