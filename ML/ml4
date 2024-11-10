@@ -1,48 +1,34 @@
-import pandas as pd  # Import pandas for data manipulation
-import matplotlib.pyplot as plt  # Import matplotlib for plotting
-import seaborn as sns  # Import seaborn for data visualization
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# Load the admissions dataset
 df = pd.read_csv('Admission_Predict.csv')
 df
 
-# Convert 'Chance of Admit ' to binary classification:
-# 1 if "Chance of Admit" is 0.75 or more, otherwise 0
 for i in range(len(df)):
     if df.at[i, "Chance of Admit "] >= 0.75:
         df.at[i, "Chance of Admit "] = 1
     else:
         df.at[i, "Chance of Admit "] = 0
 
-from sklearn.model_selection import train_test_split  # Import for splitting data into train and test sets
-from sklearn.tree import DecisionTreeClassifier, plot_tree  # Import Decision Tree Classifier and plot
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
 
-# Display column names to verify structure
 df.columns
 
-# Define input features (X) and target variable (Y) for the model
-X = df[['Serial No.', 'GRE Score', 'TOEFL Score', 'University Rating', 'SOP',
-        'LOR ', 'CGPA', 'Research']]
+X = df[['Serial No.', 'GRE Score', 'TOEFL Score', 'University Rating', 'SOP', 'LOR ', 'CGPA', 'Research']]
 Y = df[['Chance of Admit ']]
 
-# Split data into training (70%) and testing (30%) sets
 Xtrain, Xtest, Ytrain, Ytest = train_test_split(X, Y, test_size=0.3)
 
-# Initialize the Decision Tree Classifier with entropy criterion
 Model = DecisionTreeClassifier(criterion="entropy")
-
-# Train the model with training data
 Model.fit(Xtrain, Ytrain)
-
-# Predict on the test data
 Ypred = Model.predict(Xtest)
 
-from sklearn.metrics import classification_report  # Import for model evaluation
+from sklearn.metrics import classification_report
 
-# Print classification report to evaluate model performance
 print('', classification_report(Ytest, Ypred))
 
-# Plot the Decision Tree for visualization
-plt.figure(figsize=(12, 8))  # Set figure size for better readability
+plt.figure(figsize=(12, 8))
 plot_tree(Model, filled=True, feature_names=df.columns, max_depth=2, rounded=True)
 plt.show()
