@@ -1,75 +1,73 @@
-#include <iostream>
-#include <vector>
-#include <limits.h>
+#include <bits/stdc++.h>
 using namespace std;
 
-struct Edge {
-    int u, v, weight;
-};
+int main()
+{
+    int v, e;
+    cout << "Enter the number of vertices and edges: ";
+    cin >> v >> e;
 
-bool Bellman_Ford(const vector<Edge>& edges, int V, int source) {
-    vector<int> distance(V, INT_MAX);
-    vector<int> parent(V, -1);
-    distance[source] = 0;
+    vector<vector<int>> graph;
 
-    // Relax edges V-1 times
-    for (int i = 0; i < V - 1; i++) {
-        for (const auto& edge : edges) {
-            int u = edge.u;
-            int v = edge.v;
-            int weight = edge.weight;
-            if (distance[u] != INT_MAX && distance[u] + weight < distance[v]) {
-                distance[v] = distance[u] + weight;
-                parent[v] = u;
+    int dist[v];
+
+    for (int i = 0; i < v; i++)
+    {
+        dist[i] = INT_MAX;
+    }
+    dist[0] = 0;
+
+    for (int i = 0; i < e; i++)
+    {
+        int u, v, w;
+        cout << "Enter the source, destination and weight of edge " << i + 1 << ": ";
+        cin >> u >> v >> w;
+
+        graph.push_back({u, v, w});
+    }
+
+    for (int i = 0; i < v - 1; i++)
+    {
+        for (auto edge : graph)
+        {
+            int u = edge[0];
+            int v = edge[1];
+            int w = edge[2];
+
+            if (dist[u] != INT_MAX && dist[u] + w < dist[v])
+            {
+                dist[v] = dist[u] + w;
             }
         }
     }
 
-    // Check for negative-weight cycles
-    for (const auto& edge : edges) {
-        int u = edge.u;
-        int v = edge.v;
-        int weight = edge.weight;
-        if (distance[u] != INT_MAX && distance[u] + weight < distance[v]) {
-            cout << "\nNegative weight cycle exists\n";
-            return false;
+    bool negativeCycle = false;
+    for (auto edge : graph)
+    {
+        int u = edge[0];
+        int v = edge[1];
+        int w = edge[2];
+
+        if (dist[u] != INT_MAX && dist[u] + w < dist[v])
+        {
+            negativeCycle = true;
+            break;
         }
     }
 
-    // Output results
-    cout << "Vertex -> Cost, Parent\n";
-    for (int i = 0; i < V; i++) {
-        cout << "Vertex " << i + 1 << " -> Cost = " << distance[i] 
-             << ", Parent = " << (parent[i] == -1 ? -1 : parent[i] + 1) << endl;
+    if (negativeCycle)
+    {
+        cout << "Negative cycle detected" << endl;
     }
-    return true;
-}
-
-int main() {
-    int V;
-    cout << "BELLMAN FORD\n";
-    cout << "Enter the number of vertices: ";
-    cin >> V;
-
-    vector<Edge> edges;
-    cout << "Enter the graph as an adjacency matrix (0 for no edge):\n";
-    for (int i = 0; i < V; i++) {
-        for (int j = 0; j < V; j++) {
-            int weight;
-            cin >> weight;
-            if (weight != 0) {
-                edges.push_back({i, j, weight});
-            }
-        }
+    else
+    {
+        cout << "No negative cycle detected" << endl;
     }
 
-    int source;
-    cout << "Enter source vertex: ";
-    cin >> source;
-    source -= 1;  // Convert to 0-based index
-
-    if (Bellman_Ford(edges, V, source)) {
-        cout << "\nNo negative weight cycle\n";
+    for (int i = 0; i < v; i++)
+    {
+        cout << "Distance of vertex " << i << " from source is " << dist[i] << endl;
     }
+
     return 0;
 }
